@@ -5,4 +5,4 @@ sprawling/scrolling epic stoner journey through the downtown NYC art scene of th
 
 Inspired by classic ZX Spectrum games like Skool Daze and obvs Jet Set Willy..
 
-![Experimental WillysLogo](/willys.png)
+![Experimental WillysLogo](https://raw.githubusercontent.com/sideb0ard/Experimental-Jet-Set-Trashed-Willy/master/willys.jpg)
