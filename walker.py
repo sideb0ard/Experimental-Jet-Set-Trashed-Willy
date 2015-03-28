@@ -12,6 +12,7 @@ class Walker():
         def __init__(self, height, width):
 
             self._location = Vector(height // 2, width // 2)
+            # self._location = Vector(height - 1, width - 2)
             self._velocity = Vector(1, 1)
             self._acceleration = Vector(0.015, 0.015)
 
@@ -22,21 +23,24 @@ class Walker():
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
 
-                # self._velocity.add(self._acceleration)
-                self._velocity.add(Vector(random.random(), random.random()))
+                scr_y, scr_x = stdscr.getmaxyx()
+                if self._location.y > scr_y - 2 or self._location.y < 1:
+                    self._velocity.y *= -1
+                if self._location.x > scr_x - 2 or self._location.x < 1:
+                    self._velocity.x *= -1
                 self._location.add(self._velocity)
 
         def check_edges(self, stdscr):
-                scr_y, scr_x = stdscr.getmaxyx()
-                if self._location.y > scr_y - 2:
-                    self._location.y = 0
-                elif self._location.y < 0:
-                    self._location.y = scr_y - 2
+            scr_y, scr_x = stdscr.getmaxyx()
+            if self._location.y > scr_y - 2:
+                self._location.y = 0
+            elif self._location.y < 0:
+                self._location.y = scr_y - 2
 
-                if self._location.x > scr_x - 2:
-                    self._location.x = 0
-                elif self._location.x < 0:
-                    self._location.x = 0
+            if self._location.x > scr_x - 2:
+                self._location.x = 0
+            elif self._location.x < 0:
+                self._location.x = 0
 
         def draw(self, stdscr):
             try:

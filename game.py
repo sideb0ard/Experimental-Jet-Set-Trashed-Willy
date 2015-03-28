@@ -34,7 +34,7 @@ class Game:
         # END BORDERZ
 
         self._walker.take_step(self.stdscr)
-        self._walker.check_edges(self.stdscr)
+        # self._walker.check_edges(self.stdscr)
         self._walker.draw(self.stdscr)
 
         self.stdscr.refresh()
