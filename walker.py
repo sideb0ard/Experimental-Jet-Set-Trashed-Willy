@@ -15,6 +15,7 @@ class Walker():
             # self._location = Vector(height - 1, width - 2)
             self._velocity = Vector(1, 1)
             self._acceleration = Vector(0.015, 0.015)
+            self._topspeed = 10
 
             curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
             self.last_time = time.time()
@@ -23,11 +24,13 @@ class Walker():
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
 
+                # self._velocity.add(self._acceleration)
                 scr_y, scr_x = stdscr.getmaxyx()
-                if self._location.y > scr_y - 2 or self._location.y < 1:
+                if self._location.y > scr_y - 2 or self._location.y < 2:
                     self._velocity.y *= -1
-                if self._location.x > scr_x - 2 or self._location.x < 1:
+                if self._location.x > scr_x - 4 or self._location.x < 2:
                     self._velocity.x *= -1
+                # self._velocity.limit(self._topspeed)
                 self._location.add(self._velocity)
 
         def check_edges(self, stdscr):

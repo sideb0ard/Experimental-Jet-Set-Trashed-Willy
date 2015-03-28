@@ -23,7 +23,7 @@ class Vector():
         self.y /= n
         self.x /= n
 
-    def mag(self):
+    def mag(self):  # length, basically - Pythagorean Theorem
         return sqrt((self.y * self.y) + (self.x * self.x))
 
     def normalize(self):
