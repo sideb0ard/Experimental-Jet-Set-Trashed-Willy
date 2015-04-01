@@ -19,7 +19,6 @@ def runner(stdscr):
             return 0
         else:
             game.handle_key(ch)
-
         game.draw()
 
 if __name__ == '__main__':

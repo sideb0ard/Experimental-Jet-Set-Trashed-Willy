@@ -1,4 +1,5 @@
 import curses
+from vector import Vector
 
 
 class Player():
@@ -6,13 +7,14 @@ class Player():
     def __init__(self):
         pass
 
-    def handle_key(self, keychar):
+    def handle_key(self, keychar, willy):
         # MOVEMENT
         if keychar == curses.KEY_UP:
-            pass
+            willy.jump()
+            # willy._location.sub(Vector(13, 0))
         elif keychar == curses.KEY_DOWN:
             pass
         if keychar == curses.KEY_LEFT:
-            pass
+            willy._location.sub(Vector(0, 1))
         elif keychar == curses.KEY_RIGHT:
-            pass
+            willy._location.add(Vector(0, 1))
