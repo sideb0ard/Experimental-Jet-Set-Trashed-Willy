@@ -17,12 +17,15 @@ logger.addHandler(fh)
 class Willy():
 
         shape = '<O>'
+        direction = None
         _FPS = 0.02
+        gravity = 0.5
 
         def __init__(self, height, width):
 
-            self._location = Vector(height - 2, 10)
-            self._velocity = Vector(0, 0)
+            # self.location = Vector(height - 2, 10)
+            self.location = Vector(height // 2, 10)
+            self.velocity = Vector(1, 1)
             self._topspeed = 2
             self._jumping = False
 
@@ -31,36 +34,48 @@ class Willy():
             self.last_time = time.time()
 
         def jump(self):
-            self._location.y = 5
+            self.location.y = 5
+            if self.direction == 'RIGHT':
+                self.location.x += 15
+            elif self.direction == 'LEFT':
+                self.location.x -= 15
 
         def update(self, stdscr):
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
                 height, width = stdscr.getmaxyx()
-                # logger.info('Location x - {0}'.format(int(self._location.x)))
-                # logger.info('Location y - {0}'.format(int(self._location.y)))
-                if self._location.y < height - 2:
-                    self._location.y += 1
+                logger.info('Loc:{0},{1} / dir: {2}'.format(self.location.x,
+                                                            self.location.y,
+                                                            self.direction))
+                # logger.info('Location y - {0}'.format(int(self.location.y)))
+                if self.direction == 'LEFT':
+                    self.location.x -= self.velocity.x
+                if self.direction == 'RIGHT':
+                    self.location.x += self.velocity.x
+                # self.location.y += self.gravity
+                if self.location.y < height - 2:
+                    self.location.y += 1
 
-        def check_edges(self, stdscr):
+        def checkBorder(self, stdscr):
             height, width = stdscr.getmaxyx()
-            if self._location.y > height - 1:
-                self._location.y -= 1
-            elif self._location.y < 0:
-                self._location.y += 1
+            if self.location.y > height - 2:
+                self.location.y = height - 2
+            elif self.location.y < 2:
+                self.location.y = 2
 
-            if self._location.x > width - 1:
-                self._location.x -= 1
-            elif self._location.x < 0:
-                self._location.x += 1
+            if self.location.x > ((width - 3) - len(self.shape)):
+                self.location.x = ((width - 3) - len(self.shape))
+            elif self.location.x < 2:
+                self.location.x = 2
 
         def draw(self, stdscr):
+            self.checkBorder(stdscr)
             try:
                 for yy, line in enumerate(self.shape.splitlines(),
-                                          self._location.y):
-                    stdscr.addstr(yy, self._location.x,
+                                          self.location.y):
+                    stdscr.addstr(yy, self.location.x,
                                   line, curses.color_pair(2))
             except Exception, e:
-                print 'y:{0} / x:{1} / {2} || {3}'.format(self._location.y,
-                                                          self._location.x, e,
+                print 'y:{0} / x:{1} / {2} || {3}'.format(self.location.y,
+                                                          self.location.x, e,
                                                           stdscr.getmaxyx())

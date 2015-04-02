@@ -3,6 +3,7 @@ import curses
 from player import Player
 from ball import Ball
 from willy import Willy
+from vector import Vector
 
 
 class Game:
@@ -14,6 +15,9 @@ class Game:
         self._player = Player()
         self._ball = Ball(self._screen_y, self._screen_x)
         self._willy = Willy(self._screen_y, self._screen_x)
+
+        self._wind = Vector(0.01, 0)
+        self._gravity = Vector(0, 0.1)
 
     def draw(self):
         self.stdscr.erase()
@@ -34,6 +38,9 @@ class Game:
             self.stdscr.addstr(0, i, str("="))
             self.stdscr.addstr(self._screen_y - 1, i, str("="))
         # END BORDERZ
+
+        self._ball.applyForce(self._wind)
+        # self._ball.applyForce(self._gravity)
 
         self._ball.take_step(self.stdscr, self._willy)
         self._ball.draw(self.stdscr)
