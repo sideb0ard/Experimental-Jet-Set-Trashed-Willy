@@ -16,6 +16,8 @@ class Game:
         self._ball = Ball(self._screen_y, self._screen_x)
         self._willy = Willy(self._screen_y, self._screen_x)
 
+        self.gobjects = []
+
         self._wind = Vector(0.01, 0)
         self._gravity = Vector(0, 0.1)
 
@@ -46,10 +48,12 @@ class Game:
         self._ball.draw(self.stdscr)
 
         self._willy.update(self.stdscr)
-        # self._willy.check_edges(self.stdscr)
         self._willy.draw(self.stdscr)
 
         self.stdscr.refresh()
 
     def handle_key(self, keychar):
         self._player.handle_key(keychar, self._willy)
+
+    def addGobj(self, new_object):
+        self.gobjects.append(new_object)

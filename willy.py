@@ -1,6 +1,7 @@
 import curses
 import logging
 import time
+from bullet import Bullet
 from vector import Vector
 
 logger = logging.getLogger('willy')
@@ -17,14 +18,14 @@ logger.addHandler(fh)
 class Willy():
 
         shape = '<O>'
-        direction = None
+        direction = 0  # 0 = left, 1 = right
         _FPS = 0.02
         gravity = 0.5
+        bullets = []
 
         def __init__(self, height, width):
 
-            # self.location = Vector(height - 2, 10)
-            self.location = Vector(height // 2, 10)
+            self.location = Vector(height - 2, width // 2)
             self.velocity = Vector(1, 1)
             self._topspeed = 2
             self._jumping = False
@@ -33,31 +34,41 @@ class Willy():
             # self.shape = curses.ACS_DEGREE
             self.last_time = time.time()
 
+        def fire(self):
+            bully = Bullet(self.location.y, self.location.x)
+            self.bullets.append(bully)
+
         def jump(self):
             self.location.y = 5
-            if self.direction == 'RIGHT':
+            if self.direction == 1:  # right
                 self.location.x += 15
-            elif self.direction == 'LEFT':
+            elif self.direction == 0:  # left
                 self.location.x -= 15
 
         def update(self, stdscr):
+            for b in self.bullets:
+                # logger.info('Bullt {0}'.format(b))
+                b.update(stdscr)
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
                 height, width = stdscr.getmaxyx()
-                logger.info('Loc:{0},{1} / dir: {2}'.format(self.location.x,
-                                                            self.location.y,
-                                                            self.direction))
+                # logger.info('Loc:{0},{1} / dir: {2}'.format(self.location.x,
+                #                                             self.location.y,
+                #                                             self.direction))
                 # logger.info('Location y - {0}'.format(int(self.location.y)))
-                if self.direction == 'LEFT':
+                if self.direction == 0:
                     self.location.x -= self.velocity.x
-                if self.direction == 'RIGHT':
+                if self.direction == 1:
                     self.location.x += self.velocity.x
                 # self.location.y += self.gravity
                 if self.location.y < height - 2:
                     self.location.y += 1
 
+
         def checkBorder(self, stdscr):
+
             height, width = stdscr.getmaxyx()
+
             if self.location.y > height - 2:
                 self.location.y = height - 2
             elif self.location.y < 2:
@@ -65,12 +76,19 @@ class Willy():
 
             if self.location.x > ((width - 3) - len(self.shape)):
                 self.location.x = ((width - 3) - len(self.shape))
+                self.velocity.x *= -1
             elif self.location.x < 2:
                 self.location.x = 2
+                self.velocity.x *= -1
 
         def draw(self, stdscr):
             self.checkBorder(stdscr)
             try:
+                for b in self.bullets:
+                    # logger.info('Bullt {0}'.format(b))
+                    # b.update(stdscr)
+                    b.draw(stdscr)
+
                 for yy, line in enumerate(self.shape.splitlines(),
                                           self.location.y):
                     stdscr.addstr(yy, self.location.x,

@@ -71,6 +71,22 @@ class Ball():
             f.div(self._mass)
             self._acceleration.add(f)
 
+        def checkBorder(self, stdscr):
+            height, width = stdscr.getmaxyx()
+            if self.location.y > height - 2:
+                self.location.y = height - 2
+            elif self.location.y < 2:
+                self.location.y = 2
+
+            if self.location.x > ((width - 3) - len(self.shape)):
+                self.location.x = ((width - 3) - len(self.shape))
+                self.velocity.x *= -1
+                # self.direction = 1 - self.direction  # binary flip
+            elif self.location.x < 2:
+                self.location.x = 2
+                self.velocity.x *= -1
+                # self.direction = 1 - self.direction  # binary flip
+
         def draw(self, stdscr):
             try:
                 stdscr.addstr(int(self.location.y),

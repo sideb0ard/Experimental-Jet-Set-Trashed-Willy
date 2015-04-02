@@ -7,13 +7,19 @@ class Player():
         pass
 
     def handle_key(self, keychar, willy):
+
         if keychar == curses.KEY_UP:
-            willy.jump()
+            willy.fire()
         elif keychar == curses.KEY_DOWN:
-            pass
+            willy.direction = 999999  # random
+
         if keychar == curses.KEY_LEFT:
+            willy.direction = 0
             willy.location.x -= 1
-            willy.direction = 'LEFT'
         elif keychar == curses.KEY_RIGHT:
+            willy.direction = 1
             willy.location.x += 1
-            willy.direction = 'RIGHT'
+
+        if keychar == ord(' '):
+            willy.jump()
+            # willy.fire()
