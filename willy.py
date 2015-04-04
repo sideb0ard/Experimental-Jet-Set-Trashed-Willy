@@ -2,6 +2,7 @@ import curses
 import logging
 import time
 from bullet import Bullet
+from soundplayrrr import Bump, Fire, Jump
 from vector import Vector
 
 logger = logging.getLogger('willy')
@@ -37,15 +38,19 @@ class Willy():
         def fire(self):
             bully = Bullet(self.location.y, self.location.x)
             self.bullets.append(bully)
+            f = Fire()
+            f.start()
 
         def jump(self):
             self.location.y = 5
+            j = Jump()  # sound
+            j.start()
             if self.direction == 1:  # right
-                self.location.x += 15
+                self.location.x += 10
             elif self.direction == 0:  # left
-                self.location.x -= 15
+                self.location.x -= 10
 
-        def update(self, stdscr):
+        def update(self, stdscr, grounded=None):
             for b in self.bullets:
                 # logger.info('Bullt {0}'.format(b))
                 b.update(stdscr)
@@ -61,9 +66,13 @@ class Willy():
                 if self.direction == 1:
                     self.location.x += self.velocity.x
                 # self.location.y += self.gravity
-                if self.location.y < height - 2:
-                    self.location.y += 1
-
+                if grounded is None:
+                    if self.location.y < height - 2:
+                        self.location.y += 1
+                else:
+                    pass
+                    # b = Bump()
+                    # b.start()
 
         def checkBorder(self, stdscr):
 

@@ -31,7 +31,11 @@ class Ball():
             curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
             self.last_time = time.time()
 
-        def take_step(self, stdscr, willy):
+        def reset(self, stdscr):
+            height, width = stdscr.getmaxyx()
+            self.location = Vector(2, width // 2)
+
+        def update(self, stdscr, willy):
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
 
@@ -57,12 +61,12 @@ class Ball():
                 else:
                     self.location.y += self._velocity.y
 
-                logger.info('Location x - {0}'.format(int(self.location.x)))
-                logger.info('Location y - {0}'.format(int(self.location.y)))
-                logger.info('A x:{0} y:{1}'.format(self._acceleration.x,
-                                                   self._acceleration.y))
-                logger.info('V x:{0} y:{1}'.format(self._velocity.x,
-                                                   self._velocity.y))
+                # logger.info('Location x - {0}'.format(int(self.location.x)))
+                # logger.info('Location y - {0}'.format(int(self.location.y)))
+                # logger.info('A x:{0} y:{1}'.format(self._acceleration.x,
+                #                                    self._acceleration.y))
+                # logger.info('V x:{0} y:{1}'.format(self._velocity.x,
+                #                                    self._velocity.y))
 
                 # self._acceleration.mult(0)
 
