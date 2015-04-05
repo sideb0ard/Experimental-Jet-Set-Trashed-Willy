@@ -26,6 +26,12 @@ class Jump(threading.Thread):
         return
 
 
+class Whoosh1(threading.Thread):
+    def run(self):
+        subprocess.call(["afplay", "wavs/whoosh1.wav"])
+        return
+
+
 class IntroLoop(threading.Thread):
     def run(self):
         subprocess.call(["play", "-q", "wavs/bullloop2.wav", "repeat", "999"])
