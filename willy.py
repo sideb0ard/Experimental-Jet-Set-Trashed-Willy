@@ -1,19 +1,8 @@
 import curses
-import logging
 import time
 from bullet import Bullet
 from soundplayrrr import Fire, Jump
 from vector import Vector
-
-logger = logging.getLogger('willy')
-logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler('./ewilly.log')
-fh.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s ' +
-                              '- %(levelname)s - %(message)s')
-
-fh.setFormatter(formatter)
-logger.addHandler(fh)
 
 
 class Willy():
@@ -33,9 +22,6 @@ class Willy():
             self.velocity = Vector(1, 1)
             self._topspeed = 2
             self._jumping = False
-
-            curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-            # self.shape = curses.ACS_DEGREE
             self.last_time = time.time()
 
         def reset(self):
@@ -59,27 +45,19 @@ class Willy():
 
         def update(self, screen, grounded=None):
             for b in self.bullets:
-                # logger.info('Bullt {0}'.format(b))
                 b.update(screen)
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
                 height, width = screen.getmaxyx()
-                # logger.info('Loc:{0},{1} / dir: {2}'.format(self.location.x,
-                #                                             self.location.y,
-                #                                             self.direction))
-                # logger.info('Location y - {0}'.format(int(self.location.y)))
                 if self.direction == 0:
                     self.location.x -= self.velocity.x
                 if self.direction == 1:
                     self.location.x += self.velocity.x
-                # self.location.y += self.gravity
                 if grounded is None:
                     if self.location.y < height - 2:
                         self.location.y += 1
                 else:
                     pass
-                    # b = Bump()
-                    # b.start()
 
         def checkBorder(self, screen):
 
@@ -101,8 +79,6 @@ class Willy():
             self.checkBorder(screen)
             try:
                 for b in self.bullets:
-                    # logger.info('Bullt {0}'.format(b))
-                    # b.update(screen)
                     b.draw(screen)
 
                 for yy, line in enumerate(self.shape.splitlines(),

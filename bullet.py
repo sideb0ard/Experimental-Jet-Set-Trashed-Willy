@@ -18,7 +18,6 @@ class Bullet(Gobject):
             self.mass = 1
             self.last_time = time.time()
             self.drawMe = True
-            curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK)
             self.shape = curses.ACS_DEGREE
 
         def update(self, stdscr):

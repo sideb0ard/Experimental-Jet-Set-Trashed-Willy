@@ -4,20 +4,10 @@ import logging
 import time
 from vector import Vector
 
-logger = logging.getLogger('ball')
-logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler('./bouncyball.log')
-fh.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s ' +
-                              '- %(levelname)s - %(message)s')
-
-fh.setFormatter(formatter)
-logger.addHandler(fh)
-
 
 class Ball():
 
-        _shape = '*'
+        shape = '*'
         _FPS = 0.04
 
         def __init__(self, screen):
@@ -30,26 +20,27 @@ class Ball():
             self._topspeed = 1
             self._mass = 1
 
-            curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
             self.last_time = time.time()
 
         def reset(self):
             height, width = self.screen.getmaxyx()
             self.location = Vector(2, width // 2)
 
-        def update(self, screen, willy):
+        def update(self, screen, willy, bounce=None):
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
 
                 height, width = screen.getmaxyx()
 
-                direction = Vector(willy.location.y - self.location.y,
-                                   willy.location.x - self.location.x)
-                direction.normalize()
-                direction.mult(0.2)
-
-                self._velocity = direction
-                # self._velocity.add(self._acceleration)
+                if bounce:
+                    print "BOUNCEDDDDD"
+                    self._velocity.y *= -1
+                else:
+                    direction = Vector(willy.location.y - self.location.y,
+                                       willy.location.x - self.location.x)
+                    direction.normalize()
+                    direction.mult(0.2)
+                    self._velocity = direction
 
                 next_x = self.location.x + self._velocity.x
                 if next_x >= width - 2 or next_x < 1:
@@ -62,15 +53,6 @@ class Ball():
                     self._velocity.y *= -1
                 else:
                     self.location.y += self._velocity.y
-
-                # logger.info('Location x - {0}'.format(int(self.location.x)))
-                # logger.info('Location y - {0}'.format(int(self.location.y)))
-                # logger.info('A x:{0} y:{1}'.format(self._acceleration.x,
-                #                                    self._acceleration.y))
-                # logger.info('V x:{0} y:{1}'.format(self._velocity.x,
-                #                                    self._velocity.y))
-
-                # self._acceleration.mult(0)
 
         def applyForce(self, force):
             f = copy.copy(force)
@@ -97,8 +79,8 @@ class Ball():
             try:
                 screen.addstr(int(self.location.y),
                               int(self.location.x),
-                              self._shape, curses.color_pair(1))
+                              self.shape, curses.color_pair(1))
             except Exception, e:
-                logger.info('y:{0}/x:{1}/{2}||{3}'.format(self.location.y,
-                                                          self.location.x, e,
-                                                          screen.getmaxyx()))
+                print 'y:{0}/x:{1}/{2}||{3}'.format(self.location.y,
+                                                    self.location.x, e,
+                                                    screen.getmaxyx())
