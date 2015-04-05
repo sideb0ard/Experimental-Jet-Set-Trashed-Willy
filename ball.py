@@ -1,7 +1,7 @@
 import copy
 import curses
-import logging
 import time
+import threading
 from vector import Vector
 
 
@@ -9,6 +9,7 @@ class Ball():
 
         shape = '*'
         _FPS = 0.04
+        bouncing = 0
 
         def __init__(self, screen):
             self.height, self.width = screen.getmaxyx()
@@ -26,6 +27,15 @@ class Ball():
             height, width = self.screen.getmaxyx()
             self.location = Vector(2, width // 2)
 
+        def timedBounceRelease(self, secondsToWait):
+            time.sleep(secondsToWait)
+            self.bouncing = 0
+
+        def bounceRelease(self, secondsToWait):
+            t = threading.Thread(target=self.timedBounceRelease,
+                                 args=(secondsToWait,))
+            t.start()
+
         def update(self, screen, willy, bounce=None):
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
@@ -33,8 +43,11 @@ class Ball():
                 height, width = screen.getmaxyx()
 
                 if bounce:
-                    print "BOUNCEDDDDD"
+                    self.bouncing = 1
+                    self.bounceRelease(1)
                     self._velocity.y *= -1
+                elif self.bouncing == 1:
+                    pass
                 else:
                     direction = Vector(willy.location.y - self.location.y,
                                        willy.location.x - self.location.x)

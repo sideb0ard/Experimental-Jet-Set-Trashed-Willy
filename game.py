@@ -39,7 +39,7 @@ class Game:
         self.platforms = {}
         for p in range(5):
             self.platforms[p] = Vector(randint(10, self.screen_y - 10),
-                                       randint(4, self.screen_x - 10))
+                                       randint(2, self.screen_x - 11))
 
     def updateScore(self, screen):
         y, x = screen.getmaxyx()
@@ -63,7 +63,7 @@ class Game:
         y, x = screen.getmaxyx()
         for p in self.platforms:
             screen.addstr(self.platforms[p].y,
-                          self.platforms[p].x, str("====="),
+                          self.platforms[p].x, str("=========="),
                           curses.color_pair(5))
 
     def resize(self):
@@ -74,6 +74,7 @@ class Game:
             self.stdscr.clear()
             curses.resizeterm(self.screen_y, self.screen_x)
 
+    # MAIN LOOP HERE
     def draw(self):
         self.gamescr.erase()
         self.scorescr.erase()
@@ -85,7 +86,7 @@ class Game:
         self.drawPlatforms(self.gamescr)
         self.updateScore(self.scorescr)
 
-        self._ball.applyForce(self._wind)
+        # self._ball.applyForce(self._wind)
         # self._ball.applyForce(self._gravity)
         ballHitsPlatform = self.checkPlatform(self._ball)
         self._ball.update(self.gamescr, self._willy, ballHitsPlatform)
@@ -103,10 +104,11 @@ class Game:
 
     def checkPlatform(self, gobject):
         for p in self.platforms:
-            if gobject.location.y == (self.platforms[p].y - 1):
+            # print 'gobjectY:{0} / pY:{1}'.format(gobject.location.y,
+            #                                      self.platforms[p].y - 1)
+            if int(gobject.location.y) == (self.platforms[p].y - 1):
                 if ((self.platforms[p].x - 2) <= gobject.location.x) and \
-                   (gobject.location.x + len(gobject.shape) <=
-                   (self.platforms[p].x + 7)):
+                   gobject.location.x <= (self.platforms[p].x + 10):
                     self.score_msg.update("BINK!")
                     self.score_msg.timedUpdate(1, self.gname)
                     return True
@@ -126,6 +128,9 @@ class Game:
                 s.start()
                 self.score += 1
                 ball.reset()
+                b.spent = True
+            if self.checkPlatform(b):
+                b.spent = True
 
     def handle_key(self, keychar):
         self._player.handle_key(keychar, self._willy)

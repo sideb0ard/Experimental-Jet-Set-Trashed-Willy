@@ -7,7 +7,7 @@ from vector import Vector
 
 class Willy():
 
-        shape = '<O>'
+        shape = '<o>'
         direction = 0  # 0 = left, 1 = right
         _FPS = 0.02
         gravity = 0.5

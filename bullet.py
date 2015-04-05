@@ -7,6 +7,7 @@ from gobject import Gobject
 class Bullet(Gobject):
 
         FPS = 0.01
+        spent = False
         # shape = '0'
 
         def __init__(self, y, x):
@@ -30,7 +31,7 @@ class Bullet(Gobject):
             if self.location.y > height - 2:
                 self.location.y = height - 2
             elif self.location.y < 2:
-                self.drawMe = False
+                self.spent = True
 
             if self.location.x > width - 3:
                 self.location.x = width - 3
@@ -41,7 +42,7 @@ class Bullet(Gobject):
 
         def draw(self, stdscr):
             self.checkBorder(stdscr)
-            if self.drawMe is True:
+            if self.spent is False:
                 try:
                     stdscr.addch(int(self.location.y),
                                  int(self.location.x),
