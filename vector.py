@@ -41,3 +41,9 @@ class Vector():
         if self.mag() > max:
             self.normalize()
             self.mult(max)
+
+    def checkCollide(self, other_vect):
+        if ((other_vect.y - 1) < self.y < (other_vect.y + 1) and
+        # if other_vect.y == self.y and \
+                (other_vect.x - 1) < self.x < (other_vect.x + 1)):
+            return True
