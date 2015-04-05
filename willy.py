@@ -2,7 +2,7 @@ import curses
 import logging
 import time
 from bullet import Bullet
-from soundplayrrr import Bump, Fire, Jump
+from soundplayrrr import Fire, Jump
 from vector import Vector
 
 logger = logging.getLogger('willy')
@@ -22,10 +22,13 @@ class Willy():
         direction = 0  # 0 = left, 1 = right
         _FPS = 0.02
         gravity = 0.5
+        lives = 3
         bullets = []
 
-        def __init__(self, height, width):
+        def __init__(self, screen):
 
+            self.screen = screen
+            height, width = screen.getmaxyx()
             self.location = Vector(height - 2, width // 2)
             self.velocity = Vector(1, 1)
             self._topspeed = 2
@@ -34,6 +37,10 @@ class Willy():
             curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
             # self.shape = curses.ACS_DEGREE
             self.last_time = time.time()
+
+        def reset(self):
+            height, width = self.screen.getmaxyx()
+            self.location = Vector(height - 2, width // 2)
 
         def fire(self):
             bully = Bullet(self.location.y, self.location.x)
@@ -50,13 +57,13 @@ class Willy():
             elif self.direction == 0:  # left
                 self.location.x -= 10
 
-        def update(self, stdscr, grounded=None):
+        def update(self, screen, grounded=None):
             for b in self.bullets:
                 # logger.info('Bullt {0}'.format(b))
-                b.update(stdscr)
+                b.update(screen)
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
-                height, width = stdscr.getmaxyx()
+                height, width = screen.getmaxyx()
                 # logger.info('Loc:{0},{1} / dir: {2}'.format(self.location.x,
                 #                                             self.location.y,
                 #                                             self.direction))
@@ -74,9 +81,9 @@ class Willy():
                     # b = Bump()
                     # b.start()
 
-        def checkBorder(self, stdscr):
+        def checkBorder(self, screen):
 
-            height, width = stdscr.getmaxyx()
+            height, width = screen.getmaxyx()
 
             if self.location.y > height - 2:
                 self.location.y = height - 2
@@ -86,23 +93,23 @@ class Willy():
             if self.location.x > ((width - 3) - len(self.shape)):
                 self.location.x = ((width - 3) - len(self.shape))
                 self.velocity.x *= -1
-            elif self.location.x < 2:
-                self.location.x = 2
+            elif self.location.x < 1:
+                self.location.x = 1
                 self.velocity.x *= -1
 
-        def draw(self, stdscr):
-            self.checkBorder(stdscr)
+        def draw(self, screen):
+            self.checkBorder(screen)
             try:
                 for b in self.bullets:
                     # logger.info('Bullt {0}'.format(b))
-                    # b.update(stdscr)
-                    b.draw(stdscr)
+                    # b.update(screen)
+                    b.draw(screen)
 
                 for yy, line in enumerate(self.shape.splitlines(),
                                           self.location.y):
-                    stdscr.addstr(yy, self.location.x,
+                    screen.addstr(yy, self.location.x,
                                   line, curses.color_pair(2))
             except Exception, e:
                 print 'y:{0} / x:{1} / {2} || {3}'.format(self.location.y,
                                                           self.location.x, e,
-                                                          stdscr.getmaxyx())
+                                                          screen.getmaxyx())

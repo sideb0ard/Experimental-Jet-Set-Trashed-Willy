@@ -20,9 +20,11 @@ class Ball():
         _shape = '*'
         _FPS = 0.04
 
-        def __init__(self, height, width):
+        def __init__(self, screen):
+            self.height, self.width = screen.getmaxyx()
+            self.screen = screen
 
-            self.location = Vector(2, width // 2)
+            self.location = Vector(2, self.width // 2)
             self._velocity = Vector(0, 0)
             self._acceleration = Vector(0.01, 0.01)
             self._topspeed = 1
@@ -31,15 +33,15 @@ class Ball():
             curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
             self.last_time = time.time()
 
-        def reset(self, stdscr):
-            height, width = stdscr.getmaxyx()
+        def reset(self):
+            height, width = self.screen.getmaxyx()
             self.location = Vector(2, width // 2)
 
-        def update(self, stdscr, willy):
+        def update(self, screen, willy):
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
 
-                height, width = stdscr.getmaxyx()
+                height, width = screen.getmaxyx()
 
                 direction = Vector(willy.location.y - self.location.y,
                                    willy.location.x - self.location.x)
@@ -75,8 +77,8 @@ class Ball():
             f.div(self._mass)
             self._acceleration.add(f)
 
-        def checkBorder(self, stdscr):
-            height, width = stdscr.getmaxyx()
+        def checkBorder(self, screen):
+            height, width = screen.getmaxyx()
             if self.location.y > height - 2:
                 self.location.y = height - 2
             elif self.location.y < 2:
@@ -91,12 +93,12 @@ class Ball():
                 self.velocity.x *= -1
                 # self.direction = 1 - self.direction  # binary flip
 
-        def draw(self, stdscr):
+        def draw(self, screen):
             try:
-                stdscr.addstr(int(self.location.y),
+                screen.addstr(int(self.location.y),
                               int(self.location.x),
                               self._shape, curses.color_pair(1))
             except Exception, e:
                 logger.info('y:{0}/x:{1}/{2}||{3}'.format(self.location.y,
                                                           self.location.x, e,
-                                                          stdscr.getmaxyx()))
+                                                          screen.getmaxyx()))

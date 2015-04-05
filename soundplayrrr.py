@@ -24,3 +24,9 @@ class Jump(threading.Thread):
     def run(self):
         subprocess.call(["afplay", "wavs/jump.wav"])
         return
+
+
+class BeatLoop(threading.Thread):
+    def run(self):
+        subprocess.call(["play", "-q", "wavs/beat.wav", "repeat", "999"])
+        return

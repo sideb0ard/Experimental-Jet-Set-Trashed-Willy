@@ -1,22 +1,28 @@
 import curses
 from random import randint
 
-from player import Player
 from ball import Ball
-from willy import Willy
-from soundplayrrr import Hit
+from player import Player
+from soundplayrrr import Bump, Hit
 from vector import Vector
+from willy import Willy
 
 
 class Game:
 
+    score_size = 3
+
     def __init__(self, stdscr):
         self.stdscr = stdscr
-        self._screen_y, self._screen_x = self.stdscr.getmaxyx()
-
+        self.screen_y, self.screen_x = self.stdscr.getmaxyx()
+        self.gamescr = curses.newwin(self.screen_y - self.score_size,
+                                     self.screen_x,
+                                     0, 0)
+        self.scorescr = curses.newwin(self.score_size, self.screen_x,
+                                      self.screen_y - self.score_size, 0)
         self._player = Player()
-        self._ball = Ball(self._screen_y, self._screen_x)
-        self._willy = Willy(self._screen_y, self._screen_x)
+        self._ball = Ball(self.gamescr)
+        self._willy = Willy(self.gamescr)
 
         self.initPlatforms()
         self.gobjects = []
@@ -27,49 +33,61 @@ class Game:
     def initPlatforms(self):
         self.platforms = {}
         for p in range(5):
-            self.platforms[p] = Vector(randint(10, self._screen_y - 10),
-                                       randint(4, self._screen_x - 10))
+            self.platforms[p] = Vector(randint(10, self.screen_y - 10),
+                                       randint(4, self.screen_x - 10))
 
-    def drawBorders(self):
-        for i in range(self._screen_y - 1):
-            self.stdscr.addstr(i, 0, str("||"))
-            self.stdscr.addstr(i, self._screen_x - 3, str("||"))
-        for i in range(self._screen_x - 1):
-            self.stdscr.addstr(0, i, str("="))
-            self.stdscr.addstr(self._screen_y - 1, i, str("="))
+    def updateScore(self, screen):
+        screen.addstr(1, 2, "LIVES:: {0}".format(self._willy.lives))
 
-    def drawPlatforms(self):
+    def drawBorders(self, screen):
+        y, x = screen.getmaxyx()
+        for i in range(y - 1):
+            screen.addstr(i, 0, str("|"))
+            screen.addstr(i, x - 3, str("|"))
+        for i in range(x - 1):
+            screen.addstr(0, i, str("="))
+            screen.addstr(y - 1, i, str("="))
+
+    def drawPlatforms(self, screen):
+        y, x = screen.getmaxyx()
         for p in self.platforms:
-            self.stdscr.addstr(self.platforms[p].y,
-                               self.platforms[p].x, str("====="))
+            screen.addstr(self.platforms[p].y,
+                          self.platforms[p].x, str("====="))
 
     def resize(self):
         # HAS WINDOW BEEN RESIZED?
-        resize = curses.is_term_resized(self._screen_y, self._screen_x)
+        resize = curses.is_term_resized(self.screen_y, self.screen_x)
         if resize is True:
-            self._screen_y, self._screen_x = self.stdscr.getmaxyx()
+            self.screen_y, self.screen_x = self.stdscr.getmaxyx()
             self.stdscr.clear()
-            curses.resizeterm(self._screen_y, self._screen_x)
+            curses.resizeterm(self.screen_y, self.screen_x)
 
     def draw(self):
-        self.stdscr.erase()
+        self.gamescr.erase()
+        self.scorescr.erase()
         self.resize()
-        self.drawBorders()
-        self.drawPlatforms()
+        self.drawBorders(self.gamescr)
+        self.drawBorders(self.scorescr)
+        self.drawPlatforms(self.gamescr)
+
+        self.updateScore(self.scorescr)
 
         self._ball.applyForce(self._wind)
         # self._ball.applyForce(self._gravity)
 
-        self._ball.update(self.stdscr, self._willy)
-        self._ball.draw(self.stdscr)
+        self._ball.update(self.gamescr, self._willy)
+        self._ball.draw(self.gamescr)
 
         willyOnFloor = self.checkFloors(self._willy, self.platforms)
-        self._willy.update(self.stdscr, willyOnFloor)
-        self._willy.draw(self.stdscr)
+        self._willy.update(self.gamescr, willyOnFloor)
+        self._willy.draw(self.gamescr)
 
-        self.checkCollisions(self._willy, self._ball, self.stdscr)
+        self.checkCollisions(self._willy, self._ball)
 
-        self.stdscr.refresh()
+        # self.stdscr.refresh()
+        self.gamescr.noutrefresh()
+        self.scorescr.noutrefresh()
+        curses.doupdate()
 
     def checkFloors(self, willy, platforms):
         for p in platforms:
@@ -79,15 +97,18 @@ class Game:
                    (platforms[p].x + 7)):
                     return True
 
-    def checkCollisions(self, willy, ball, stdscr):
+    def checkCollisions(self, willy, ball):
         if ball.location.checkCollide(willy.location):
-            # print "DEID!"
-            pass
+            s = Bump()
+            s.start()
+            willy.lives -= 1
+            willy.reset()
+            ball.reset()
         for b in willy.bullets:
             if b.location.checkCollide(ball.location):
                 s = Hit()
                 s.start()
-                ball.reset(self.stdscr)
+                ball.reset()
 
     def handle_key(self, keychar):
         self._player.handle_key(keychar, self._willy)
