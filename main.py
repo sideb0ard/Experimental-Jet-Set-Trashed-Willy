@@ -2,6 +2,7 @@ import curses
 import traceback
 
 from game import Game
+from soundplayrrr import BeatLoop
 
 
 def runner(stdscr):
@@ -12,6 +13,10 @@ def runner(stdscr):
     curses.curs_set(0)
     game = Game(stdscr)
     game.draw()
+
+    # m = BeatLoop()  # music loop
+    # m.setDaemon(True)
+    # m.start()
 
     while True:
         ch = stdscr.getch()
