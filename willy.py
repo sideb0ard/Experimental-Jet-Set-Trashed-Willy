@@ -3,17 +3,17 @@ import math
 import time
 import threading
 from bullet import Bullet
-from soundplayrrr import Fire, Whoosh1
+from soundplayrrr import Fire
 from vector import Vector
 
 
 class Willy():
 
         shape = '<o>'
-        directionUpDown = 0  
+        directionUpDown = 0
         directionLeftRight = 0
         _FPS = 0.01
-        gravity = 0.5
+        gravity = 0.2
         lives = 3
         bullets = []
         jumping = False
@@ -49,13 +49,6 @@ class Willy():
         def jump(self):
             self.jumping = True
             self.timedJump(0.5)
-            # self.location.y = 5
-            j = Whoosh1()  # sound
-            j.start()
-            # if self.direction == 1:  # right
-            #    self.location.x += 10
-            # elif self.direction == 0:  # left
-            #    self.location.x -= 10
 
         def update(self, screen, grounded=None):
             for b in self.bullets:
@@ -63,17 +56,11 @@ class Willy():
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
                 if grounded:
-                    self.velocity.y *= -1
+                    self.directionUpDown = None
 
-                if self.directionUpDown == 0:
-                    self.location.y -= self.gravity  # up
-                elif self.directionUpDown == 1:
-                    self.location.y += self.gravity  # down
-
-                if self.directionLeftRight == 0:  # left
-                    self.location.x -= self.gravity
-                elif self.directionLeftRight == 1:  # right
-                    self.location.x += self.gravity
+                # if self.jumping is True:
+                #     self.location.y += self.velocity.y
+                #     self.location.x -= self.velocity.x
 
                 # if self.jumping is True:
                 #     self.location.y -= 1
@@ -87,12 +74,14 @@ class Willy():
 
             if self.location.y > height - 2:
                 self.location.y = height - 2
+                self.velocity.y *= -1
             elif self.location.y < 2:
                 self.location.y = 1
+                self.velocity.y *= -1
 
             if self.location.x > (width - len(self.shape)):
                 self.location.x = (width - len(self.shape))
-                self.velocity.x *= -2
+                self.velocity.x *= -1
             elif self.location.x < 0:
                 self.location.x = 0
                 self.velocity.x *= -1

@@ -11,13 +11,16 @@ class Player():
         if keychar == curses.KEY_UP:
             willy.location.y -= 2
             willy.directionUpDown = 0
+            willy.jump()
         elif keychar == curses.KEY_DOWN:
             willy.location.y += 2
             willy.directionUpDown = 1
+            willy.jump()
 
         if keychar == curses.KEY_LEFT:
             willy.location.x -= 2
             willy.directionLeftRight = 0
+            willy.jump()
         elif keychar == curses.KEY_RIGHT:
             y, x = screen.getmaxyx()
             if x - len(willy.shape) <= willy.location.x < x:
@@ -25,6 +28,7 @@ class Player():
             else:
                 willy.location.x += 2
             willy.directionLeftRight = 1
+            willy.jump()
 
         if keychar == ord(' '):
             willy.fire()
