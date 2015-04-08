@@ -1,4 +1,5 @@
 import curses
+import logging
 from random import randint
 
 from ball import Ball
@@ -8,6 +9,15 @@ from message import Message
 from vector import Vector
 from willy import Willy
 
+logger = logging.getLogger('ball')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('./bouncyball.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s ' +
+                              '- %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
 
 class Game:
 
@@ -15,6 +25,7 @@ class Game:
     score = 0
     gname = "JETSET TRASHED WILLY!!"
     currentLevel = 1
+    door_size = 5
 
     def __init__(self, stdscr):
         self.stdscr = stdscr
@@ -35,9 +46,9 @@ class Game:
         self._wind = Vector(0.01, 0)
         self._gravity = Vector(0, 0.1)
 
-        self.newLevel()
+        self.initLevel()
 
-    def newLevel(self):
+    def initLevel(self):
         self.initPlatforms(self.gamescr)
         self.initDoorways(self.gamescr)
         self._willy.reset()
@@ -47,42 +58,43 @@ class Game:
         gy, gx = self.gamescr.getmaxyx()
         self.initPlatforms(self.gamescr)
         for d in self.doorways:
-            if self.doorways[d].x == gx - 2:
-                self.doorways[d].x = 0
-            else:
-                self.doorways[d].x = gx - 2
-        if self._willy.location.x == 0:
-            self._willy.location.x = gx - len(self._willy.shape)
-        else:
-            self._willy.location.x = 1
+             if self.doorways[d].x == (gx - 2):
+                 self.doorways[d].x = 0
+             elif self.doorways[d].x == 0:
+                 self.doorways[d].x = gx - 2
+             if self._willy.location.x == 0:
+                 self._willy.location.x = gx - (len(self._willy.shape) + 1)
+             else:
+                 self._willy.location.x = 2
         self._ball.reset()
 
     def initDoorways(self, screen):
         y, x = screen.getmaxyx()
         self.doorways = {}
-        for d in range(1):
+        for d in range(2):
             dx = 0 if randint(0, 1) == 0 else x - 2  # left or right side
-            self.doorways[d] = Vector(randint(y - 30, y - 10), dx)
+            self.doorways[d] = Vector(randint(y - 30, y - 5), dx)
 
     def checkInDoorway(self, vector):
         for d in self.doorways:
-            if self.doorways[d].y <= int(vector.y) <= (self.doorways[d].y + 3) \
-                    and (self.doorways[d].x - 2 <=
-                         int(vector.x) <= self.doorways[d].x + 2):
+            if self.doorways[d].y <= int(vector.y) <= ((self.doorways[d].y +
+                                                        self.door_size))\
+                    and (self.doorways[d].x - 1 <=
+                         int(vector.x) <= self.doorways[d].x + 1):
                 return True
 
     def initPlatforms(self, screen):
         y, x = screen.getmaxyx()
         self.platforms = {}
-        for p in range(5):
+        for p in range(6):
             self.platforms[p] = Vector(randint(10, y - 10),
-                                       randint(2, x - 11))
+                                       randint(2, x - 12))
 
     def drawPlatforms(self, screen):
         y, x = screen.getmaxyx()
         for p in self.platforms:
             screen.addstr(self.platforms[p].y,
-                          self.platforms[p].x, str("=========="),
+                          self.platforms[p].x, str("============"),
                           curses.color_pair(5))
 
     def updateScore(self, screen):
@@ -132,9 +144,10 @@ class Game:
         self._ball.draw(self.gamescr)
 
         if self.checkInDoorway(self._willy.location):
-            self.score_msg.update("MAGIC WURLD!!!!")
             self.score_msg.timedUpdate(3, self.gname)
             self.currentLevel += 1
+            self.score_msg.update("MAGIC WURLD {0}!!!!".
+                                  format(self.currentLevel))
             self.nextLevel()
 
         willyOnPlatform = self.checkPlatform(self._willy)
@@ -151,7 +164,8 @@ class Game:
         for p in self.platforms:
             # print 'gobjectY:{0} / pY:{1}'.format(gobject.location.y,
             #                                      self.platforms[p].y - 1)
-            if (self.platforms[p].y - 1 <= int(gobject.location.y) <= self.platforms[p].y + 1):
+            if (self.platforms[p].y - 1 <= int(gobject.location.y)
+               <= self.platforms[p].y + 1):
                 if ((self.platforms[p].x - 2) <= gobject.location.x) and \
                    gobject.location.x <= (self.platforms[p].x + 10):
                     return True
