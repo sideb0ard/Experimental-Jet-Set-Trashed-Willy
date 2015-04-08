@@ -47,10 +47,10 @@ class Game:
         gy, gx = self.gamescr.getmaxyx()
         self.initPlatforms(self.gamescr)
         for d in self.doorways:
-            if self.doorways[d].x == 0:
-                self.doorways[d].x = gx - 2
-            else:
+            if self.doorways[d].x == gx - 2:
                 self.doorways[d].x = 0
+            else:
+                self.doorways[d].x = gx - 2
         if self._willy.location.x == 0:
             self._willy.location.x = gx - len(self._willy.shape)
         else:
@@ -62,7 +62,14 @@ class Game:
         self.doorways = {}
         for d in range(1):
             dx = 0 if randint(0, 1) == 0 else x - 2  # left or right side
-            self.doorways[d] = Vector(randint(10, y - 10), dx)
+            self.doorways[d] = Vector(randint(y - 30, y - 10), dx)
+
+    def checkInDoorway(self, vector):
+        for d in self.doorways:
+            if self.doorways[d].y <= int(vector.y) <= (self.doorways[d].y + 3) \
+                    and (self.doorways[d].x - 2 <=
+                         int(vector.x) <= self.doorways[d].x + 2):
+                return True
 
     def initPlatforms(self, screen):
         y, x = screen.getmaxyx()
@@ -70,6 +77,13 @@ class Game:
         for p in range(5):
             self.platforms[p] = Vector(randint(10, y - 10),
                                        randint(2, x - 11))
+
+    def drawPlatforms(self, screen):
+        y, x = screen.getmaxyx()
+        for p in self.platforms:
+            screen.addstr(self.platforms[p].y,
+                          self.platforms[p].x, str("=========="),
+                          curses.color_pair(5))
 
     def updateScore(self, screen):
         y, x = screen.getmaxyx()
@@ -79,12 +93,6 @@ class Game:
                       self.score_msg.txt, curses.color_pair(4))
         screen.addstr(1, x - 15, "SCORE:: {0}".format(self.score),
                       curses.color_pair(4))
-
-    def checkInDoorway(self, vector):
-        for d in self.doorways:
-            if self.doorways[d].y <= vector.y < (self.doorways[d].y + 3) \
-                    and self.doorways[d].x == int(vector.x):
-                return True
 
     def drawBorders(self, screen):
         y, x = screen.getmaxyx()
@@ -96,13 +104,6 @@ class Game:
         for i in range(x - 1):
             screen.addstr(0, i, str("="))
             screen.addstr(y - 1, i, str("="))
-
-    def drawPlatforms(self, screen):
-        y, x = screen.getmaxyx()
-        for p in self.platforms:
-            screen.addstr(self.platforms[p].y,
-                          self.platforms[p].x, str("=========="),
-                          curses.color_pair(5))
 
     def resize(self):
         # HAS WINDOW BEEN RESIZED?
@@ -150,8 +151,7 @@ class Game:
         for p in self.platforms:
             # print 'gobjectY:{0} / pY:{1}'.format(gobject.location.y,
             #                                      self.platforms[p].y - 1)
-            if int(gobject.location.y) == ((self.platforms[p].y) or
-                                           (self.platforms[p].y + 2)):
+            if (self.platforms[p].y - 1 <= int(gobject.location.y) <= self.platforms[p].y + 1):
                 if ((self.platforms[p].x - 2) <= gobject.location.x) and \
                    gobject.location.x <= (self.platforms[p].x + 10):
                     return True

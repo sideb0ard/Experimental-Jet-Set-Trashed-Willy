@@ -12,18 +12,19 @@ class Willy():
         shape = '<o>'
         directionUpDown = 0
         directionLeftRight = 0
-        _FPS = 0.01
+        _FPS = 0.02
         gravity = 0.2
         lives = 3
         bullets = []
         jumping = False
+        onGround = False
 
         def __init__(self, screen):
 
             self.screen = screen
             height, width = screen.getmaxyx()
             self.location = Vector(height - 2, width // 2)
-            self.velocity = Vector(0.5, 0.5)
+            self.velocity = Vector(0, 1)
             self._topspeed = 2
             self._jumping = False
             self.last_time = time.time()
@@ -40,33 +41,48 @@ class Willy():
 
         def jumpFinish(self, secondsToWait):
             time.sleep(secondsToWait)
-            self.jumping = False
+            if self.velocity.y < -6:
+                self.velocity.y = -6
+            # self.jumping = False
+            # self.velocity.x *= -0.5
+            # self.velocity.y = 0
 
         def timedJump(self, secondsToWait):
             t = threading.Thread(target=self.jumpFinish, args=(secondsToWait,))
             t.start()
 
         def jump(self):
-            self.jumping = True
-            self.timedJump(0.5)
+            if self.onGround is True:
+                self.velocity.y = (-2.45 * abs(self.velocity.x))
+                self.onGround = False
+            # self.jumping = True
+            self.timedJump(0)
 
         def update(self, screen, grounded=None):
             for b in self.bullets:
                 b.update(screen)
             if time.time() > self.last_time + self._FPS:
                 self.last_time = time.time()
+                height, width = screen.getmaxyx()
+
+                self.velocity.y += self.gravity
                 if grounded:
-                    self.directionUpDown = None
+                    self.onGround = True
+                    self.velocity.y = 0
+                else:
+                    self.location.y += self.velocity.y
 
-                # if self.jumping is True:
-                #     self.location.y += self.velocity.y
-                #     self.location.x -= self.velocity.x
+                if self.velocity.x >= 1:
+                    self.velocity.x = 1
+                elif self.velocity.x <= -1:
+                    self.velocity.x = -1
 
-                # if self.jumping is True:
-                #     self.location.y -= 1
-                # elif grounded is None:
-                #     if self.location.y < height - 2:
-                #         self.location.y += 1
+                self.location.x += self.velocity.x
+
+                if self.location.y > height - 2:
+                    self.location.y = height - 2
+                    self.velocity.y = 0
+                    self.onGround = True
 
         def checkBorder(self, screen):
 
@@ -74,10 +90,10 @@ class Willy():
 
             if self.location.y > height - 2:
                 self.location.y = height - 2
-                self.velocity.y *= -1
+                self.velocity.y = 0
             elif self.location.y < 2:
                 self.location.y = 1
-                self.velocity.y *= -1
+                # self.velocity.y *= -1
 
             if self.location.x > (width - len(self.shape)):
                 self.location.x = (width - len(self.shape))
