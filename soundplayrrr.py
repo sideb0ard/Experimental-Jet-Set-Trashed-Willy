@@ -1,5 +1,6 @@
 import subprocess
 import threading
+from random import randint
 
 
 class Fire(threading.Thread):
@@ -32,7 +33,30 @@ class Whoosh1(threading.Thread):
         return
 
 
+class Whirr(threading.Thread):
+    def run(self):
+        subprocess.call(["afplay", "wavs/whirr.wav"])
+        return
+
+
+class Snik(threading.Thread):
+    def run(self):
+        subprocess.call(["afplay", "wavs/snik.wav"])
+        return
+
+
 class IntroLoop(threading.Thread):
     def run(self):
         subprocess.call(["play", "-q", "wavs/bullloop2.wav", "repeat", "999"])
+        return
+
+
+class BeatLoop(threading.Thread):
+    loop = True
+    loops = ["wavs/jayzishloop.wav"]
+
+    def run(self):
+        while self.loop is True:
+            subprocess.call(["play", "-q",
+                            self.loops[randint(0, len(self.loops) - 1)]])
         return

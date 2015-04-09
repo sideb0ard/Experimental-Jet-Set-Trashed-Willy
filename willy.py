@@ -3,7 +3,7 @@ import math
 import time
 import threading
 from bullet import Bullet
-from soundplayrrr import Fire
+from soundplayrrr import Fire, Snik
 from vector import Vector
 
 
@@ -18,6 +18,7 @@ class Willy():
         bullets = []
         jumping = False
         onGround = False
+        soundPlaying = False
 
         def __init__(self, screen):
 
@@ -69,6 +70,11 @@ class Willy():
                 if grounded:
                     self.onGround = True
                     self.velocity.y = 0
+                    if self.soundPlaying is False:
+                        self.soundPlaying = True
+                        s = Snik()
+                        s.start()
+                        self.soundPlaying = False
                 else:
                     self.location.y += self.velocity.y
 
@@ -113,6 +119,6 @@ class Willy():
                     screen.addstr(yy, int(math.floor(self.location.x)),
                                   line, curses.color_pair(2))
             except Exception, e:
-                print 'y:{0} / x:{1} / {2} || {3}'.format(self.location.y,
-                                                          self.location.x, e,
-                                                          screen.getmaxyx())
+                print 'WILLY::: y:{0}/x:{1} /{2}||{3}'.\
+                      format(self.location.y, self.location.x, e,
+                             screen.getmaxyx())

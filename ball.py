@@ -2,6 +2,7 @@ import copy
 import curses
 import time
 import threading
+from random import randint
 from vector import Vector
 
 
@@ -15,7 +16,7 @@ class Ball():
             self.height, self.width = screen.getmaxyx()
             self.screen = screen
 
-            self.location = Vector(2, self.width // 2)
+            self.location = Vector(2, randint(0, self.width))
             self._velocity = Vector(0, 0)
             self._acceleration = Vector(0.01, 0.01)
             self._topspeed = 1
@@ -25,7 +26,7 @@ class Ball():
 
         def reset(self):
             height, width = self.screen.getmaxyx()
-            self.location = Vector(2, width // 2)
+            self.location = Vector(2, randint(0, width))
 
         def timedBounceRelease(self, secondsToWait):
             time.sleep(secondsToWait)
@@ -81,19 +82,16 @@ class Ball():
 
             if self.location.x > ((width - 3) - len(self.shape)):
                 self.location.x = ((width - 3) - len(self.shape))
-                self.velocity.x *= -1
-                # self.direction = 1 - self.direction  # binary flip
             elif self.location.x < 2:
                 self.location.x = 2
-                self.velocity.x *= -1
-                # self.direction = 1 - self.direction  # binary flip
 
         def draw(self, screen):
+            self.checkBorder(screen)
             try:
                 screen.addstr(int(self.location.y),
                               int(self.location.x),
                               self.shape, curses.color_pair(1))
             except Exception, e:
-                print 'y:{0}/x:{1}/{2}||{3}'.format(self.location.y,
-                                                    self.location.x, e,
-                                                    screen.getmaxyx())
+                print 'BALL:: y:{0}/x:{1}/{2}||{3}'.format(self.location.y,
+                                                           self.location.x, e,
+                                                           screen.getmaxyx())

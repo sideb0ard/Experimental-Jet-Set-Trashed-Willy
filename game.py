@@ -23,7 +23,7 @@ class Game:
 
     score_size = 3
     score = 0
-    gname = "JETSET TRASHED WILLY!!"
+    gname = "EXPERIMENTAL JETSET TRASHED WILLY!!"
     currentLevel = 1
     door_size = 5
 
@@ -35,13 +35,15 @@ class Game:
                                      0, 0)
         self.scorescr = curses.newwin(self.score_size, self.screen_x,
                                       self.screen_y - self.score_size, 0)
+
         self._player = Player()
-        self._ball = Ball(self.gamescr)
         self._willy = Willy(self.gamescr)
 
-        self.score_msg = Message(self.gname)
+        self.balls = []
+        #  self._ball = Ball(self.gamescr)
+        self.balls.append(Ball(self.gamescr))
 
-        self.gobjects = []  # UNUSED FOR THE MOMENT
+        self.score_msg = Message(self.gname)
 
         self._wind = Vector(0.01, 0)
         self._gravity = Vector(0, 0.1)
@@ -52,7 +54,8 @@ class Game:
         self.initPlatforms(self.gamescr)
         self.initDoorways(self.gamescr)
         self._willy.reset()
-        self._ball.reset()
+        for b in self.balls:
+            b.reset()
 
     def nextLevel(self):
         gy, gx = self.gamescr.getmaxyx()
@@ -66,14 +69,17 @@ class Game:
                  self._willy.location.x = gx - (len(self._willy.shape) + 1)
              else:
                  self._willy.location.x = 2
-        self._ball.reset()
+
+        self.balls.append(Ball(self.gamescr))
+        for b in self.balls:
+            b.reset()
 
     def initDoorways(self, screen):
         y, x = screen.getmaxyx()
         self.doorways = {}
         for d in range(2):
             dx = 0 if randint(0, 1) == 0 else x - 2  # left or right side
-            self.doorways[d] = Vector(randint(y - 30, y - 5), dx)
+            self.doorways[d] = Vector(randint(y - 20, y - 10), dx)
 
     def checkInDoorway(self, vector):
         for d in self.doorways:
@@ -139,9 +145,10 @@ class Game:
 
         # self._ball.applyForce(self._wind)
         # self._ball.applyForce(self._gravity)
-        ballHitsPlatform = self.checkPlatform(self._ball)
-        self._ball.update(self.gamescr, self._willy, ballHitsPlatform)
-        self._ball.draw(self.gamescr)
+        for b in self.balls:
+            ballHitsPlatform = self.checkPlatform(b)
+            b.update(self.gamescr, self._willy, ballHitsPlatform)
+            b.draw(self.gamescr)
 
         if self.checkInDoorway(self._willy.location):
             self.score_msg.timedUpdate(3, self.gname)
@@ -154,7 +161,8 @@ class Game:
         self._willy.update(self.gamescr, willyOnPlatform)
         self._willy.draw(self.gamescr)
 
-        self.checkCollisions(self._willy, self._ball)
+        for b in self.balls:
+            self.checkCollisions(self._willy, b)
 
         self.gamescr.noutrefresh()
         self.scorescr.noutrefresh()
