@@ -1,7 +1,7 @@
 import curses
 import math
 import time
-import threading
+# import threading
 from bullet import Bullet
 from soundplayrrr import Fire, Snik
 from vector import Vector
@@ -10,9 +10,7 @@ from vector import Vector
 class Willy():
 
         shape = '<o>'
-        directionUpDown = 0
-        directionLeftRight = 0
-        _FPS = 0.02
+        FPS = 0.02
         gravity = 0.2
         lives = 3
         bullets = []
@@ -40,29 +38,30 @@ class Willy():
             f = Fire()
             f.start()
 
-        def jumpFinish(self, secondsToWait):
-            time.sleep(secondsToWait)
-            if self.velocity.y < -6:
-                self.velocity.y = -6
-            # self.jumping = False
-            # self.velocity.x *= -0.5
-            # self.velocity.y = 0
+        # def jumpFinish(self, secondsToWait):
+        #     time.sleep(secondsToWait)
+        #     if self.velocity.y < -6:
+        #         self.velocity.y = -6
+        #     # self.jumping = False
+        #     # self.velocity.x *= -0.5
+        #     # self.velocity.y = 0
 
-        def timedJump(self, secondsToWait):
-            t = threading.Thread(target=self.jumpFinish, args=(secondsToWait,))
-            t.start()
+        # def timedJump(self, secondsToWait):
+        #     t = threading.Thread(target=self.jumpFinish,
+        #                          args=(secondsToWait,))
+        #     t.start()
 
         def jump(self):
             if self.onGround is True:
                 self.velocity.y = (-2.45 * abs(self.velocity.x))
                 self.onGround = False
             # self.jumping = True
-            self.timedJump(0)
+            # self.timedJump(0)
 
         def update(self, screen, grounded=None):
             for b in self.bullets:
                 b.update(screen)
-            if time.time() > self.last_time + self._FPS:
+            if time.time() > self.last_time + self.FPS:
                 self.last_time = time.time()
                 height, width = screen.getmaxyx()
 

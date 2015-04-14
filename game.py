@@ -1,5 +1,7 @@
 import curses
 import logging
+import threading
+import time
 from random import randint
 
 from ball import Ball
@@ -25,6 +27,7 @@ class Game:
     score = 0
     gname = "EXPERIMENTAL JETSET TRASHED WILLY!!"
     currentLevel = 1
+    changedLevel = False  # for timer to avoid changing too many times
     door_size = 5
 
     def __init__(self, stdscr):
@@ -58,13 +61,17 @@ class Game:
             b.reset()
 
     def nextLevel(self):
+        self.changedLevel = True
+        self.changingLevelTimer()
         gy, gx = self.gamescr.getmaxyx()
         self.initPlatforms(self.gamescr)
         for d in self.doorways:
+
              if self.doorways[d].x == (gx - 2):
                  self.doorways[d].x = 0
              elif self.doorways[d].x == 0:
                  self.doorways[d].x = gx - 2
+
              if self._willy.location.x == 0:
                  self._willy.location.x = gx - (len(self._willy.shape) + 1)
              else:
@@ -155,7 +162,8 @@ class Game:
             self.currentLevel += 1
             self.score_msg.update("MAGIC WURLD {0}!!!!".
                                   format(self.currentLevel))
-            self.nextLevel()
+            if self.changedLevel is False:
+                self.nextLevel()
 
         willyOnPlatform = self.checkPlatform(self._willy)
         self._willy.update(self.gamescr, willyOnPlatform)
@@ -202,3 +210,12 @@ class Game:
 
     def addGobj(self, new_object):
         self.gobjects.append(new_object)
+
+    def changingLevelTimer(self):
+        self.changedLevel = True
+        t = threading.Thread(target=self.justChangedLevel)
+        t.start()
+
+    def justChangedLevel(self):
+        time.sleep(2)
+        self.changedLevel = False
