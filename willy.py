@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import curses
 import math
 import time
@@ -9,7 +10,7 @@ from vector import Vector
 
 class Willy():
 
-        shape = '<o>'
+        shape = '֍'
         FPS = 0.02
         gravity = 0.2
         lives = 3
