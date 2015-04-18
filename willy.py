@@ -10,7 +10,7 @@ from vector import Vector
 
 class Willy():
 
-        shape = '֍'
+        shape = '<o>'
         FPS = 0.02
         gravity = 0.2
         lives = 3
